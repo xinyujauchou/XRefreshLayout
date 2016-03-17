@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="demokit.xrefresh">
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name="demokit.chaowang.demo.LsitViewActivity"
+            android:label="@string/title_activity_lsit_view"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name="demokit.chaowang.demo.ScrollViewActivity"
+            android:label="@string/title_activity_scroll_view"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name="demokit.chaowang.demo.LineaRecyclerViewActivity"
+            android:label="@string/title_activity_linea_recycler_view"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity android:name="demokit.chaowang.demo.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+    </application>
+
+</manifest>
