@@ -26,8 +26,9 @@ public class LineaRecyclerViewActivity extends AppCompatActivity implements XRef
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_linea_recycler_view);
         refreshLayout = (XRefreshLayout)findViewById(R.id.refreshLayout);
-        refreshLayout.seteRreshListener(this);
-        refreshLayout.setHeaderView(new MyHeadView(LineaRecyclerViewActivity.this));
+        refreshLayout.seteRreshListener(this)
+                     .setHeaderView(new MyHeadView(LineaRecyclerViewActivity.this))
+                     .setPullRefreshEnable(true);
         addBook();
         initLinearManager();
         mRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);

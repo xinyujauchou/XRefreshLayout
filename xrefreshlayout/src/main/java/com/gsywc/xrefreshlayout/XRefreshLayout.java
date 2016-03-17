@@ -57,7 +57,7 @@ public class XRefreshLayout extends LinearLayout{
     private HeaderState mHeadState = HeaderState.NOMAL; //Header 和 Footer 状态
     private int mMoveY = 0; //纵向移动的距离,  负数表示向上移动(加载更多), 反之 正数则表示向下移动(下拉刷新)
     /** 用户配置信息 **/
-    private boolean isRefreshEnable = false;  //是否允许下拉刷新
+    private boolean isRefreshEnable = true;  //是否允许下拉刷新
     private boolean isLoadMoreEnable = false; //是否允许上拉加载更多
 
     private boolean hasLoadOver; //数据是否已经全部加载完毕
@@ -400,8 +400,9 @@ public class XRefreshLayout extends LinearLayout{
      * 设置监听事件{@link RefreshListener}
      * @param refreshListener 监听的事件
      */
-    public void seteRreshListener(RefreshListener refreshListener){
+    public XRefreshLayout seteRreshListener(RefreshListener refreshListener){
         this.mRefreshListener = refreshListener;
+        return this;
     }
 
     /**
@@ -475,7 +476,7 @@ public class XRefreshLayout extends LinearLayout{
      * @param enable true : 允许刷新操作  false : 不允许下拉操作
      * @return XRefreshLayout
      */
-    private XRefreshLayout setPullRefreshEnable(boolean enable){
+    public XRefreshLayout setPullRefreshEnable(boolean enable){
         this.isRefreshEnable = enable;
         mHeaderView.setVisibility(isRefreshEnable ? View.VISIBLE : View.GONE);
         return this;
@@ -486,7 +487,7 @@ public class XRefreshLayout extends LinearLayout{
      * @param enable true : 允许  false : 不允许
      * @return XRefreshLayout
      */
-    private XRefreshLayout setPullLoadMoreEnable(boolean enable){
+    public XRefreshLayout setPullLoadMoreEnable(boolean enable){
         this.isLoadMoreEnable = enable;
         return this;
     }
