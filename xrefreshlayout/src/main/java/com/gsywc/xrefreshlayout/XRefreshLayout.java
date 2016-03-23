@@ -423,17 +423,27 @@ public class XRefreshLayout extends LinearLayout{
      * @param isRefreshing 刷新状态  true : 转换到刷新状态， false ： 转换到普通状态
      */
     public void setRefreshing(boolean isRefreshing){
-        if(isRefreshing){
-//            post(new Runnable() {
-//                @Override
-//                public void run() {
-//                    startScroll(mHeaderView.getMeasuredHeight(), FAST_ANIMATION_DURATION);
-//                }
-//            });
+        if(isRefreshing && mHeadState != HeaderState.FRESHING){
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    startScroll(mHeaderView.getMeasuredHeight() + 100, FAST_ANIMATION_DURATION * 2);
+                }
+            }, 300);
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    releaseFresh();
+                }
+            },300 + FAST_ANIMATION_DURATION * 2);
         }else{
             updateHeaderORFooter(HeaderState.COMPLETE);
             releaseFresh();
         }
+    }
+
+    public boolean isRefreshing(){
+        return getHeaderState() == HeaderState.FRESHING;
     }
 
     public void setLoadingMore(boolean isLoadingMore){
@@ -443,6 +453,10 @@ public class XRefreshLayout extends LinearLayout{
             updateHeaderORFooter(HeaderState.COMPLETE);
             releaseFresh();
         }
+    }
+
+    public boolean isLoadingMore(){
+        return getFooterState() == HeaderState.FRESHING;
     }
 
     /**
@@ -478,7 +492,6 @@ public class XRefreshLayout extends LinearLayout{
      */
     public XRefreshLayout setPullRefreshEnable(boolean enable){
         this.isRefreshEnable = enable;
-        mHeaderView.setVisibility(isRefreshEnable ? View.VISIBLE : View.GONE);
         return this;
     }
 
@@ -538,5 +551,11 @@ public class XRefreshLayout extends LinearLayout{
         mFooterView = footerView;
         mFooterCallback = (IFooterCallBack)mFooterView;
         return this;
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+
     }
 }

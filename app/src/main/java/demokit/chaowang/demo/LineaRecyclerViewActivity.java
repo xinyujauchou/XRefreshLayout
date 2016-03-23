@@ -26,14 +26,16 @@ public class LineaRecyclerViewActivity extends AppCompatActivity implements XRef
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_linea_recycler_view);
         refreshLayout = (XRefreshLayout)findViewById(R.id.refreshLayout);
-        refreshLayout.seteRreshListener(this)
-                     .setHeaderView(new MyHeadView(LineaRecyclerViewActivity.this))
-                     .setPullRefreshEnable(true);
-        addBook();
+        refreshLayout.seteRreshListener(this)    //接受刷新、加载 回调
+//                     .setHeaderView(new MyHeadView(LineaRecyclerViewActivity.this))  //设置自定义header,也可以用默认的header
+                     .setPullRefreshEnable(true)    //打开刷新开关
+                     .setPullLoadMoreEnable(true);  //打开上拉加载开关
         initLinearManager();
         mRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(new RecyclerViewAdapter(this, list));
+
+        refreshLayout.setRefreshing(true);
 
     }
 
@@ -59,6 +61,7 @@ public class LineaRecyclerViewActivity extends AppCompatActivity implements XRef
                 refreshLayout.setHasLoadOver(false);
                 refreshLayout.setRefreshing(false);
                 refreshLayout.setRefreshTime(System.currentTimeMillis());
+
 
 
             }

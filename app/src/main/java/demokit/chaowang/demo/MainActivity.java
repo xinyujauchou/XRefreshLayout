@@ -7,6 +7,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.gsywc.xrefreshlayout.XRefreshLayout;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import demokit.xrefresh.R;
 public class MainActivity extends AppCompatActivity implements RecyclerViewListener{
 
     private RecyclerView recyclerView;
+    private XRefreshLayout xrefreshlayout;
     private List<Book> books = new ArrayList<>();
 
     @Override
@@ -30,6 +33,10 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewListe
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(this, books);
         adapter.setListener(this);
         recyclerView.setAdapter(adapter);
+
+        xrefreshlayout = (XRefreshLayout)findViewById(R.id.xrefreshlayout);
+        xrefreshlayout.setPullRefreshEnable(false)
+                      .setPullLoadMoreEnable(false);
     }
 
     private void initData(){
