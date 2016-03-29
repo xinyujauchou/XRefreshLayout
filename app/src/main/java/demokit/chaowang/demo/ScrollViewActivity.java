@@ -19,7 +19,7 @@ public class ScrollViewActivity extends AppCompatActivity implements XRefreshLay
         setContentView(R.layout.activity_scroll_view);
 
         refreshLayout = (XRefreshLayout)findViewById(R.id.refreshLayout);
-        refreshLayout.seteRreshListener(this);
+        refreshLayout.setRefreshListener(this);
 
         findViewById(R.id.id1).setOnClickListener(this);
         findViewById(R.id.id2).setOnClickListener(this);

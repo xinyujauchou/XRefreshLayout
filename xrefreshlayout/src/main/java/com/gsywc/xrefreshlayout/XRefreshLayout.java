@@ -16,6 +16,7 @@ import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Scroller;
+import android.widget.Toast;
 
 import com.gsywc.xrefreshlayout.model.HeaderState;
 import com.gsywc.xrefreshlayout.model.IFooterCallBack;
@@ -37,6 +38,7 @@ public class XRefreshLayout extends LinearLayout{
     private final static int FAST_ANIMATION_DURATION = 200;  //控件复位动画
     private final static int RESET_ANIMATION_DURATION = 300;  //控件复位动画
     private final static float DEFAULT_MOVE_FRICTION = 0.5f; //阻力系数
+    private final static long DEFAULT_REFRESH_FINISH_DELAY = 500; //状态停留延时
     private final static long DEFAULT_OVER_STAY_DELAY = 1000; //状态停留延时
 
     private Scroller mScroller;               //滚动辅助
@@ -61,7 +63,10 @@ public class XRefreshLayout extends LinearLayout{
     private boolean isLoadMoreEnable = false; //是否允许上拉加载更多
 
     private boolean hasLoadOver; //数据是否已经全部加载完毕
+    private boolean isRefreshing;//处在刷新周期
+    private long mRefreshFinishStay = DEFAULT_REFRESH_FINISH_DELAY;
     private long mOverStayDelay = DEFAULT_OVER_STAY_DELAY; //加载完毕后停留时间
+    private ReleaseRunnable releaseRunnable;
 
 
     public XRefreshLayout(Context context) {
@@ -249,7 +254,7 @@ public class XRefreshLayout extends LinearLayout{
 
             return;
         }
-        if(percent >= 1.0){
+        if(percent >= 1.0 && mHeadState != HeaderState.COMPLETE){
             updateHeaderORFooter(HeaderState.READY);
         }else if(mHeadState == HeaderState.READY || isTouching){
             updateHeaderORFooter(HeaderState.NOMAL);
@@ -266,6 +271,7 @@ public class XRefreshLayout extends LinearLayout{
                 ((mMoveY > 0 && isRefreshEnable && mMoveY >= destHeight)
               || (mMoveY < 0 && isLoadMoreEnable && !hasLoadOver && mMoveY <= destHeight))){
             updateHeaderORFooter(HeaderState.FRESHING); //开始刷新
+
             if(mMoveY > 0){
                 mRefreshListener.onRefresh();
             }else{
@@ -301,6 +307,7 @@ public class XRefreshLayout extends LinearLayout{
         if(!isRefreshEnable || headerState == getHeaderState() || mHeaderCallback == null){
             return;
         }
+        mHeadState = headerState;
         stateArrayMap.put(KEY_MAP_STATE_HEADER, headerState);
         mHeaderCallback.onStateChange(headerState);
     }
@@ -309,6 +316,7 @@ public class XRefreshLayout extends LinearLayout{
         if(!isLoadMoreEnable || headerState == getFooterState() || mFooterCallback == null){
             return;
         }
+        mHeadState = headerState;
         stateArrayMap.put(KEY_MAP_STATE_FOOTER, headerState);
         mFooterCallback.onStateChange(headerState);
     }
@@ -400,7 +408,7 @@ public class XRefreshLayout extends LinearLayout{
      * 设置监听事件{@link RefreshListener}
      * @param refreshListener 监听的事件
      */
-    public XRefreshLayout seteRreshListener(RefreshListener refreshListener){
+    public XRefreshLayout setRefreshListener(RefreshListener refreshListener){
         this.mRefreshListener = refreshListener;
         return this;
     }
@@ -423,27 +431,29 @@ public class XRefreshLayout extends LinearLayout{
      * @param isRefreshing 刷新状态  true : 转换到刷新状态， false ： 转换到普通状态
      */
     public void setRefreshing(boolean isRefreshing){
+        this.isRefreshing = isRefreshing;
         if(isRefreshing && mHeadState != HeaderState.FRESHING){
-            postDelayed(new Runnable() {
+            if(mHeaderView == null){
+                return;
+            }
+            updateHeaderState(HeaderState.NOMAL);
+            post(new Runnable() {
                 @Override
                 public void run() {
                     startScroll(mHeaderView.getMeasuredHeight() + 100, FAST_ANIMATION_DURATION * 2);
                 }
-            }, 300);
-            postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    releaseFresh();
-                }
-            },300 + FAST_ANIMATION_DURATION * 2);
+            });
+            releaseRunnable = new ReleaseRunnable();
+            postDelayed(releaseRunnable, FAST_ANIMATION_DURATION * 2);
         }else{
             updateHeaderORFooter(HeaderState.COMPLETE);
-            releaseFresh();
+            postDelayed(new ReleaseRunnable(), mRefreshFinishStay);
+
         }
     }
 
     public boolean isRefreshing(){
-        return getHeaderState() == HeaderState.FRESHING;
+        return getHeaderState() == HeaderState.FRESHING || isRefreshing;
     }
 
     public void setLoadingMore(boolean isLoadingMore){
@@ -505,6 +515,11 @@ public class XRefreshLayout extends LinearLayout{
         return this;
     }
 
+    public XRefreshLayout setRefreshFinishDelay(long finishStay){
+        this.mRefreshFinishStay = finishStay;
+        return this;
+    }
+
     /**
      * 设置全部加载完成以后  提示停留时间
      * @param overStayDelay 停留时间 默认{@link #DEFAULT_OVER_STAY_DELAY}
@@ -557,5 +572,13 @@ public class XRefreshLayout extends LinearLayout{
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
 
+    }
+
+    /** 松手ruunable **/
+    class ReleaseRunnable implements Runnable{
+        @Override
+        public void run() {
+            releaseFresh();
+        }
     }
 }

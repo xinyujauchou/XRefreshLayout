@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../XRefreshLayout.iml" filepath="$PROJECT_DIR$/../XRefreshLayout.iml" />
+      <module fileurl="file://$PROJECT_DIR$/xrefreshlayout.iml" filepath="$PROJECT_DIR$/xrefreshlayout.iml" />
+    </modules>
+  </component>
+</project>

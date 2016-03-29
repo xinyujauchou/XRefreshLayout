@@ -31,7 +31,7 @@ public class LsitViewActivity extends Activity implements AdapterView.OnItemClic
         mListView.setAdapter(new MyAdapter());
 
         refreshLayout = (XRefreshLayout)findViewById(R.id.refreshLayout);
-        refreshLayout.seteRreshListener(this);
+        refreshLayout.setRefreshListener(this);
     }
 
     @Override

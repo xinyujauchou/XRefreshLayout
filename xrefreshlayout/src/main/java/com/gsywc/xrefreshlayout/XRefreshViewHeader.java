@@ -1,5 +1,8 @@
 package com.gsywc.xrefreshlayout;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.AttributeSet;
@@ -30,9 +33,12 @@ public class XRefreshViewHeader extends LinearLayout implements IHeaderCallBack 
 	private Animation mRotateDownAnim;
 	private long lastRefrshTime = System.currentTimeMillis();
 
+	private AnimatorSet as;
+
 	public XRefreshViewHeader(Context context) {
 		super(context);
 		initView(context);
+		initRefreshFinishAnimator();
 	}
 
 	/**
@@ -138,14 +144,56 @@ public class XRefreshViewHeader extends LinearLayout implements IHeaderCallBack 
 	public void onStateFinish() {
 		mArrowImageView.setVisibility(View.GONE);
 		mOkImageView.setVisibility(View.VISIBLE);
-		mProgressBar.setVisibility(View.GONE);
 		mHintTextView.setText("刷新完成");
 		mHeaderTimeTextView.setVisibility(View.GONE);
+
+		if(as == null){
+			initRefreshFinishAnimator();
+		}
+		as.start();
+	}
+
+	private void initRefreshFinishAnimator(){
+		ObjectAnimator objectAnimator01 = ObjectAnimator.ofFloat(mProgressBar, "scaleX", 1, 0);
+		ObjectAnimator objectAnimator02 = ObjectAnimator.ofFloat(mProgressBar, "scaleY", 1, 0);
+		ObjectAnimator objectAnimator2 = ObjectAnimator.ofFloat(mOkImageView, "alpha", 0, 1);
+		ObjectAnimator objectAnimator3 = ObjectAnimator.ofFloat(mOkImageView, "scaleX", 0, 1);
+		ObjectAnimator objectAnimator4 = ObjectAnimator.ofFloat(mOkImageView, "scaleY", 0, 1);
+
+		as = new AnimatorSet();
+		as.setDuration(400);
+		as.playTogether(objectAnimator01,objectAnimator02, objectAnimator2, objectAnimator3, objectAnimator4);
+		as.addListener(new Animator.AnimatorListener() {
+			@Override
+			public void onAnimationStart(Animator animation) {
+			}
+
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				mProgressBar.setAlpha(1);
+				mProgressBar.setScaleX(1);
+				mProgressBar.setScaleY(1);
+				mProgressBar.setVisibility(GONE);
+				mOkImageView.setVisibility(VISIBLE);
+			}
+
+			@Override
+			public void onAnimationCancel(Animator animation) {
+				mProgressBar.setAlpha(1);
+				mProgressBar.setScaleX(1);
+				mProgressBar.setScaleY(1);
+				mProgressBar.setVisibility(GONE);
+				mOkImageView.setVisibility(VISIBLE);
+			}
+
+			@Override
+			public void onAnimationRepeat(Animator animation) {
+			}
+		});
 	}
 
 	@Override
 	public void onHeaderMove(double offset, float percent) {
-		Log.i("XRefreshViewHeader", "出现比例  "+percent);
 	}
 
 	@Override
