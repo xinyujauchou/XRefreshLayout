@@ -10,13 +10,12 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.webkit.WebView;
 import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Scroller;
-import android.widget.Toast;
 
 import com.gsywc.xrefreshlayout.model.HeaderState;
 import com.gsywc.xrefreshlayout.model.IFooterCallBack;
@@ -64,6 +63,7 @@ public class XRefreshLayout extends LinearLayout{
 
     private boolean hasLoadOver; //数据是否已经全部加载完毕
     private boolean isRefreshing;//处在刷新周期
+    private boolean isLoadingMore;//处在加载更多周期
     private long mRefreshFinishStay = DEFAULT_REFRESH_FINISH_DELAY;
     private long mOverStayDelay = DEFAULT_OVER_STAY_DELAY; //加载完毕后停留时间
     private ReleaseRunnable releaseRunnable;
@@ -82,7 +82,7 @@ public class XRefreshLayout extends LinearLayout{
     private void init(){
         Log.d(TAG, TAG);
         setOrientation(VERTICAL); //设置线性布局的排列方向
-        mScroller = new Scroller(getContext(), new LinearInterpolator()); //初始化线性滚轮
+        mScroller = new Scroller(getContext(), new DecelerateInterpolator()); //初始化线性滚轮
         mTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
         this.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -131,7 +131,10 @@ public class XRefreshLayout extends LinearLayout{
                 continue;
             }
             measureChild(child, widthMeasureSpec, heightMeasureSpec);
-            parentHieght += child.getMeasuredHeight();
+            if(child == mHeaderView || child == mFooterView){
+                continue;
+            }
+            parentHieght = child.getMeasuredHeight();
         }
         setMeasuredDimension(parentWidth, parentHieght);
     }
@@ -267,14 +270,16 @@ public class XRefreshLayout extends LinearLayout{
     public void releaseFresh(){
         int destHeight = mMoveY >= 0 ? mHeaderView.getMeasuredHeight() : -mFooterView.getMeasuredHeight();
 
-        if((mHeadState != HeaderState.FRESHING && mHeadState != HeaderState.COMPLETE && mRefreshListener != null) &&
+        if(isSatisfyRefreshState() && mRefreshListener != null&&
                 ((mMoveY > 0 && isRefreshEnable && mMoveY >= destHeight)
               || (mMoveY < 0 && isLoadMoreEnable && !hasLoadOver && mMoveY <= destHeight))){
             updateHeaderORFooter(HeaderState.FRESHING); //开始刷新
 
             if(mMoveY > 0){
+                this.isRefreshing = true;
                 mRefreshListener.onRefresh();
             }else{
+                this.isLoadingMore = true;
                 mRefreshListener.onLoadMore();
             }
         }
@@ -288,6 +293,14 @@ public class XRefreshLayout extends LinearLayout{
                                 || (mMoveY < 0 && mMoveY <= destHeight)){
             startScroll(0 - (mMoveY - destHeight), RESET_ANIMATION_DURATION); //执行复位动画
         }
+    }
+
+    private boolean isSatisfyRefreshState(){
+        if(mMoveY == 0){
+            return false;
+        }
+        HeaderState mState = mMoveY > 0 ? getHeaderState() : getFooterState();
+        return mState != HeaderState.FRESHING && mState != HeaderState.COMPLETE;
     }
 
     /**
@@ -330,11 +343,7 @@ public class XRefreshLayout extends LinearLayout{
     }
 
     private HeaderState getStateByKey(String mapKey){
-        HeaderState headerState = stateArrayMap.get(mapKey);
-        if(headerState == null){
-            headerState = HeaderState.NOMAL;
-        }
-        return headerState;
+        return stateArrayMap.get(mapKey);
     }
 
     @Override
@@ -431,8 +440,8 @@ public class XRefreshLayout extends LinearLayout{
      * @param isRefreshing 刷新状态  true : 转换到刷新状态， false ： 转换到普通状态
      */
     public void setRefreshing(boolean isRefreshing){
-        this.isRefreshing = isRefreshing;
         if(isRefreshing && mHeadState != HeaderState.FRESHING){
+            this.isRefreshing = isRefreshing;
             if(mHeaderView == null){
                 return;
             }
@@ -446,27 +455,30 @@ public class XRefreshLayout extends LinearLayout{
             releaseRunnable = new ReleaseRunnable();
             postDelayed(releaseRunnable, FAST_ANIMATION_DURATION * 2);
         }else{
-            updateHeaderORFooter(HeaderState.COMPLETE);
-            postDelayed(new ReleaseRunnable(), mRefreshFinishStay);
-
+            updateHeaderState(HeaderState.COMPLETE);
+            if(isRefreshing()){
+                this.isRefreshing = isRefreshing;
+                postDelayed(new ReleaseRunnable(), mRefreshFinishStay);
+            }
         }
     }
 
     public boolean isRefreshing(){
-        return getHeaderState() == HeaderState.FRESHING || isRefreshing;
+        return (getHeaderState() == HeaderState.FRESHING || isRefreshing) && mMoveY > 0;
     }
 
     public void setLoadingMore(boolean isLoadingMore){
         if(isLoadingMore){
-
-        }else{
+            this.isLoadingMore = isLoadingMore;
+        }else if(isLoadingMore()){
+            this.isLoadingMore = isLoadingMore;
             updateHeaderORFooter(HeaderState.COMPLETE);
             releaseFresh();
         }
     }
 
     public boolean isLoadingMore(){
-        return getFooterState() == HeaderState.FRESHING;
+        return (getFooterState() == HeaderState.FRESHING || isLoadingMore) && mMoveY < 0;
     }
 
     /**
@@ -480,7 +492,12 @@ public class XRefreshLayout extends LinearLayout{
             updateFooterState(HeaderState.NOMAL);
             return;
         }
-        updateHeaderORFooter(HeaderState.OVER);
+        if(!isLoadingMore()){
+            updateFooterState(HeaderState.OVER);
+            mFooterView.setVisibility(View.INVISIBLE);
+            return;
+        }
+        updateFooterState(HeaderState.OVER);
         postDelayed(new Runnable() {
             @Override
             public void run() {

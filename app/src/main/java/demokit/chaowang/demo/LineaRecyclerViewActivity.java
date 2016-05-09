@@ -68,8 +68,9 @@ public class LineaRecyclerViewActivity extends AppCompatActivity implements XRef
                 list.clear();
                 addBook();
                 loadCount = 1;
-                refreshLayout.setHasLoadOver(false);
+
                 refreshLayout.setRefreshing(false);
+                refreshLayout.setHasLoadOver(false);
                 refreshLayout.setRefreshTime(System.currentTimeMillis());
             }
         }, 1000);

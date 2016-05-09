@@ -21,17 +21,27 @@ public class LsitViewActivity extends Activity implements AdapterView.OnItemClic
         XRefreshLayout.RefreshListener{
     private ListView mListView;
     private XRefreshLayout refreshLayout;
+    private View topView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lsitview);
-
+        topView = findViewById(R.id.v_id);
         mListView = (ListView)findViewById(R.id.listView);
         mListView.setAdapter(new MyAdapter());
 
         refreshLayout = (XRefreshLayout)findViewById(R.id.refreshLayout);
         refreshLayout.setRefreshListener(this);
+        refreshLayout.setPullLoadMoreEnable(true);
+
+        topView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                topView.getLayoutParams().height = topView.getLayoutParams().height + 600;
+                topView.requestLayout();
+            }
+        });
     }
 
     @Override
@@ -63,7 +73,7 @@ public class LsitViewActivity extends Activity implements AdapterView.OnItemClic
     class MyAdapter extends BaseAdapter{
         @Override
         public int getCount() {
-            return 5;
+            return 2;
         }
 
         @Override

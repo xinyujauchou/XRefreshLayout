@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.gsywc.xrefreshlayout.XRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/refreshLayout"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <ListView
-        android:id="@+id/listView"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    
+    <View
+        android:id="@+id/v_id"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:cacheColorHint="#00000000"
-        android:scrollbars="none"/>
+        android:layout_height="200dp"
+        android:background="@color/colorAccent"/>
+    
+    <com.gsywc.xrefreshlayout.XRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-</com.gsywc.xrefreshlayout.XRefreshLayout>
+        <ListView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="#00000000"
+            android:scrollbars="none"/>
+
+    </com.gsywc.xrefreshlayout.XRefreshLayout>
+</LinearLayout>
