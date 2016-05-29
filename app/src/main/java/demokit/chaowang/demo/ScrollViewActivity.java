@@ -37,7 +37,7 @@ public class ScrollViewActivity extends AppCompatActivity implements XRefreshLay
             public void run() {
                 refreshLayout.setRefreshing(false);
             }
-        }, 3000);
+        }, 4000);
     }
 
     @Override

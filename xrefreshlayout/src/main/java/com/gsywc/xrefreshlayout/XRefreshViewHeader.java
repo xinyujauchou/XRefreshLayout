@@ -4,12 +4,9 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.res.Resources;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
@@ -19,8 +16,6 @@ import android.widget.TextView;
 
 import com.gsywc.xrefreshlayout.model.HeaderState;
 import com.gsywc.xrefreshlayout.model.IHeaderCallBack;
-
-import java.util.Calendar;
 
 public class XRefreshViewHeader extends LinearLayout implements IHeaderCallBack {
 	private final int ROTATE_ANIM_DURATION = 180;
@@ -121,6 +116,9 @@ public class XRefreshViewHeader extends LinearLayout implements IHeaderCallBack 
 
 	@Override
 	public void onStateReady() {
+		if(as != null){
+			as.cancel();
+		}
 		mProgressBar.setVisibility(View.GONE);
 		mOkImageView.setVisibility(View.GONE);
 		mArrowImageView.setVisibility(View.VISIBLE);
@@ -132,6 +130,9 @@ public class XRefreshViewHeader extends LinearLayout implements IHeaderCallBack 
 
 	@Override
 	public void onStateRefreshing() {
+		if(as != null){
+			as.cancel();
+		}
 		mArrowImageView.clearAnimation();
 		mArrowImageView.setVisibility(View.GONE);
 		mOkImageView.setVisibility(View.GONE);
