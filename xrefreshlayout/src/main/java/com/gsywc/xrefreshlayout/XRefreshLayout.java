@@ -42,6 +42,7 @@ public class XRefreshLayout extends LinearLayout{
 
     private Scroller mScroller;               //滚动辅助
     private RefreshListener mRefreshListener; //监听刷新控件的动作:刷新/加载更多
+    private OnTouchListener mOnTouchListener; //事件监听,由于XRefreshLayout实现方式限制(dispatchTouchEvent()传递了伪事件),需要覆写TouchListener
     private IHeaderCallBack mHeaderCallback;  //header 回调
     private IFooterCallBack mFooterCallback;  //footer 回调
 
@@ -124,7 +125,7 @@ public class XRefreshLayout extends LinearLayout{
 
         int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
         int childCount = getChildCount();
-        int parentHieght = 0;
+        int parentHeight = 0;
         for(int index = 0; index < childCount; index++){
             View child = getChildAt(index);
             if(child.getVisibility() == View.GONE){ //过滤不可见的child
@@ -134,9 +135,9 @@ public class XRefreshLayout extends LinearLayout{
             if(child == mHeaderView || child == mFooterView){
                 continue;
             }
-            parentHieght = child.getMeasuredHeight();
+            parentHeight = child.getMeasuredHeight();
         }
-        setMeasuredDimension(parentWidth, parentHieght);
+        setMeasuredDimension(parentWidth, parentHeight);
     }
 
     @Override
@@ -163,6 +164,7 @@ public class XRefreshLayout extends LinearLayout{
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
+        dispatchOnTouchListener(ev);
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
                 isTouching = true;
@@ -197,6 +199,7 @@ public class XRefreshLayout extends LinearLayout{
                 hasIntercepted = isTouching = false;
                 deltaY = 0;
                 break;
+            default:break;
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -270,9 +273,9 @@ public class XRefreshLayout extends LinearLayout{
     public void releaseFresh(){
         int destHeight = mMoveY >= 0 ? mHeaderView.getMeasuredHeight() : -mFooterView.getMeasuredHeight();
 
-        if(isSatisfyRefreshState() && mRefreshListener != null&&
-                ((isRefreshEnable && mMoveY >= destHeight)
-              || (isLoadMoreEnable && !hasLoadOver && mMoveY <= destHeight))){
+        if(isSatisfyRefreshState() && mRefreshListener != null &&
+                ((isRefreshEnable && mMoveY > 0 && mMoveY >= destHeight)
+              || (isLoadMoreEnable && !hasLoadOver && mMoveY < 0 && mMoveY <= destHeight))){
             updateHeaderORFooter(HeaderState.FRESHING); //开始刷新
             removeCallbacks(releaseRunnable); //移除上一次回弹操作
             if(mMoveY > 0){
@@ -391,10 +394,7 @@ public class XRefreshLayout extends LinearLayout{
         }
         View child = getChildAt(1);
         if (child instanceof AbsListView) {
-            AbsListView absListView = (AbsListView) child;
-            return child.canScrollVertically(1)
-//                    || absListView.getLastVisiblePosition() != mTotalItemCount - 1
-                    ;
+            return child.canScrollVertically(1);
         } else if (child instanceof WebView) {
             WebView webview = (WebView) child;
             return child.canScrollVertically(1)
@@ -422,17 +422,20 @@ public class XRefreshLayout extends LinearLayout{
         return this;
     }
 
-    /**
-     * 实现该接口实时接收刷新,加载事件<br>
-     * {@link #onRefresh()} 接收刷新事件<br>
-     * {@link #onLoadMore()} 接收加载更多事件
-     */
-    public interface RefreshListener{
-        /** 触发'刷新'机制的时候会回调此方法 **/
-        void onRefresh();
+    @Override
+    public void setOnTouchListener(OnTouchListener l) {
+        super.setOnTouchListener(null);
+        this.mOnTouchListener = l;
+    }
 
-        /** 触发'加载更多'机制的时候会回调此方法 **/
-        void onLoadMore();
+    /**
+     * 手势监听,请勿在回调事件中处理耗时事件
+     * @param event 事件
+     */
+    private void dispatchOnTouchListener(MotionEvent event){
+        if(this.mOnTouchListener != null){
+            mOnTouchListener.onTouch(this, event);
+        }
     }
 
     /**
@@ -460,8 +463,8 @@ public class XRefreshLayout extends LinearLayout{
                 this.isRefreshing = isRefreshing;
                 releaseRunnable = new ReleaseRunnable();
                 postDelayed(releaseRunnable, mRefreshFinishStay);
-            }else{
-                this.isRefreshing = isRefreshing;
+            }else{ //异常处理,防止在页面没有完全渲染前调用
+                this.isRefreshing = false;
             }
         }
     }
@@ -598,7 +601,26 @@ public class XRefreshLayout extends LinearLayout{
     class ReleaseRunnable implements Runnable{
         @Override
         public void run() {
+            if(isRefreshing && mMoveY < mHeaderView.getMeasuredHeight()){ //刷新之前判断合法性,避免下次刷新状态不正确
+                isRefreshing = false;
+                updateHeaderORFooter(HeaderState.NOMAL);
+                mScroller.abortAnimation();
+            }
             releaseFresh();
         }
     }
+
+    /**
+     * 实现该接口实时接收刷新,加载事件<br>
+     * {@link #onRefresh()} 接收刷新事件<br>
+     * {@link #onLoadMore()} 接收加载更多事件
+     */
+    public interface RefreshListener{
+        /** 触发'刷新'机制的时候会回调此方法 **/
+        void onRefresh();
+
+        /** 触发'加载更多'机制的时候会回调此方法 **/
+        void onLoadMore();
+    }
+
 }
