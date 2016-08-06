@@ -1,4 +1,4 @@
-package com.gsywc.xrefreshlayout;
+package com.gsywc.xrefreshlayout.header;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.gsywc.xrefreshlayout.R;
 import com.gsywc.xrefreshlayout.model.HeaderState;
 import com.gsywc.xrefreshlayout.model.IFooterCallBack;
 

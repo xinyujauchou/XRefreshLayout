@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/xrefreshview_header_text"
+    android:layout_width="match_parent"
+    android:layout_height="95dp"
+    android:paddingBottom="10dp">
+
+    <RelativeLayout
+        android:id="@+id/right_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="8dp">
+
+        <com.gsywc.xrefreshlayout.TurnAroundImageView
+            android:id="@+id/iv_loading_circle"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:padding="5dp"
+            android:src="@drawable/loading_refresh" />
+
+        <TextView
+            android:id="@+id/tv_refresh_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/iv_loading_circle"
+            android:layout_toEndOf="@id/iv_loading_circle"
+            android:layout_marginLeft="5dp"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:textColor="#9a9c9a"
+            android:textSize="12dp"
+            android:text="@string/header_refresh_pull" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/iv_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/right_text"
+        android:layout_marginBottom="9dp"
+        android:src="@drawable/loading_slogen"/>
+
+</RelativeLayout>

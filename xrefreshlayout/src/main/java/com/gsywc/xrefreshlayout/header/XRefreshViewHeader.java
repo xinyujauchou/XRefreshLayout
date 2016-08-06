@@ -1,4 +1,4 @@
-package com.gsywc.xrefreshlayout;
+package com.gsywc.xrefreshlayout.header;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -14,6 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.gsywc.xrefreshlayout.R;
+import com.gsywc.xrefreshlayout.util.Utils;
 import com.gsywc.xrefreshlayout.model.HeaderState;
 import com.gsywc.xrefreshlayout.model.IHeaderCallBack;
 

@@ -3,4 +3,8 @@
     <string name="title_activity_lsit_view">LsitViewActivity</string>
 
     <string name="header_last_fresh_time">上次更新:&#160;&#160;%1$s</string>
+    <string name="header_refresh_pull">下拉即可刷新...</string>
+    <string name="header_refresh_release">释放即可刷新...</string>
+    <string name="header_refresh_loading">加载中...</string>
+    <string name="header_refresh_complete">加载完成...</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.gsywc.xrefreshlayout;
+package com.gsywc.xrefreshlayout.util;
 
 import android.content.res.Resources;
 

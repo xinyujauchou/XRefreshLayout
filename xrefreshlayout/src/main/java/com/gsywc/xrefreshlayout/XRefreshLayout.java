@@ -1,6 +1,7 @@
 package com.gsywc.xrefreshlayout;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.util.ArrayMap;
 import android.util.AttributeSet;
@@ -17,9 +18,12 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Scroller;
 
+import com.gsywc.xrefreshlayout.header.SloganHeader;
+import com.gsywc.xrefreshlayout.header.XRefreshViewFooter;
 import com.gsywc.xrefreshlayout.model.HeaderState;
 import com.gsywc.xrefreshlayout.model.IFooterCallBack;
 import com.gsywc.xrefreshlayout.model.IHeaderCallBack;
+import com.gsywc.xrefreshlayout.util.XRefreshLayoutConfig;
 
 /**
  * 具备 刷新/加载更多 功能的布局， 直接嵌套在 根布局 使用<br>
@@ -106,7 +110,7 @@ public class XRefreshLayout extends LinearLayout{
     /** 添加header和Footer **/
     private void addHeaderAndFooter(){
         if(mHeaderView == null){
-            mHeaderView = new XRefreshViewHeader(getContext());
+            mHeaderView = new SloganHeader(getContext());
         }
         if(mFooterView == null){
             mFooterView = new XRefreshViewFooter(getContext());
@@ -588,6 +592,26 @@ public class XRefreshLayout extends LinearLayout{
         }
         mFooterView = footerView;
         mFooterCallback = (IFooterCallBack)mFooterView;
+        return this;
+    }
+
+    /**
+     * 设置logoUrl
+     * @param url logo的Url
+     * @return 当前实例
+     */
+    public XRefreshLayout logoUrl(String url){
+        XRefreshLayoutConfig.setHeaderLogoUrl(url);
+        return this;
+    }
+
+    /**
+     * 设置logoUrl
+     * @param drawable logo的Drawable
+     * @return 当前实例
+     */
+    public XRefreshLayout logoDrawable(Drawable drawable){
+        XRefreshLayoutConfig.setmLogoDrawable(drawable);
         return this;
     }
 
